@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度 - 音量挑战</title>
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pitchy@4.0.0/dist/pitchy.min.js"></script>
+    <script src="https://unpkg.com/meyda@5.6.2/dist/web/meyda.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #F2E8D3;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gif-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 400px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gif-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .pitch-display {
+            display: none; /* 隐藏音符显示区域 */
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 24px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-button {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #DC7F43;
+            color: #F2E8D3;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-button:hover {
+            background-color: #B35A2E;
+        }
+
+        /* 倒计时样式 */
+        .countdown {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            font-weight: bold;
+            color: #DC7F43;
+            opacity: 0;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(220, 127, 67, 0.5);
+            pointer-events: none;
+        }
+
+        .countdown.active {
+            opacity: 1;
+            animation: bounce 0.3s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* 游戏区域样式 */
+        .game-area {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 300px;
+            background-color: rgba(220, 127, 67, 0.1);
+            border-radius: 20px;
+            display: block;
+        }
+
+        /* 挡板样式 */
+        .barrier {
+            position: absolute;
+            right: 20%;
+            width: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 上下挡板部分 */
+        .barrier::before,
+        .barrier::after {
+            content: '';
+            width: 100%;
+            background-color: #663F2A;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* 默认挡板位置（音频1） */
+        .barrier::before {
+            height: calc(50% - 15px); /* 上挡板 */
+            margin-top: 0;
+        }
+
+        .barrier::after {
+            height: calc(50% - 15px); /* 下挡板 */
+            margin-bottom: 0;
+        }
+
+        /* 音频2的挡板位置 - 间隙更低 */
+        .barrier.audio2::before {
+            height: calc(50% - 15px);
+            margin-top: -60px; /* 上挡板下移 */
+        }
+
+        .barrier.audio2::after {
+            height: calc(50% - 15px);
+            margin-bottom: 60px; /* 下挡板下移 */
+        }
+
+        /* 音频3的挡板位置 - 间隙更高 */
+        .barrier.audio3::before {
+            height: calc(50% - 15px);
+            margin-top: 60px; /* 上挡板上移 */
+        }
+
+        .barrier.audio3::after {
+            height: calc(50% - 15px);
+            margin-bottom: -60px; /* 下挡板上移 */
+        }
+
+        /* 小球样式 */
+        .ball {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #DC7F43;
+            border-radius: 50%;
+            left: 20%;
+            bottom: 50px; /* 初始位置上移50px */
+            transition: all 0.1s linear;
+        }
+
+        /* 音量指示器样式 */
+        .volume-indicator {
+            position: fixed;
+            bottom: 120px; /* 调整位置到游戏框下方 */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 50px; /* 减小高度 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px; /* 字体大小减半 */
+            font-weight: bold;
+            color: #DC7F43;
+            text-shadow: 0 0 10px rgba(220, 127, 67, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .volume-indicator.active {
+            opacity: 1;
+        }
+
+        .volume-gauge {
+            position: fixed;
+            bottom: 100px; /* 调整位置到游戏框下方 */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px; /* 减小宽度 */
+            height: 10px; /* 减小高度 */
+            background: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .volume-gauge.active {
+            display: block;
+        }
+
+        .gauge-indicator {
+            position: absolute;
+            width: 4px;
+            height: 100%;
+            background: #DC7F43;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: left 0.1s ease;
+        }
+
+        .gauge-center {
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background: rgba(220, 127, 67, 0.2);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* 麦克风按钮样式 */
+        .mic-button {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #663F2A;
+            color: #F2E8D3;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: block;
+        }
+
+        /* 10秒倒计时样式 */
+        .timer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            font-weight: bold;
+            color: #663F2A;
+            text-shadow: 0 0 5px rgba(102, 63, 42, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .timer.active {
+            opacity: 1;
+        }
+
+        /* 提示文字样式 */
+        .hint-text {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #663F2A;
+            text-shadow: 0 0 5px rgba(102, 63, 42, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .hint-text.active {
+            opacity: 1;
+        }
+
+        .arrow-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #DC7F43;
+            color: #F2E8D3;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .arrow-button:hover {
+            background-color: #B35A2E;
+            transform: scale(1.1);
+        }
+
+        .button-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .audio-button {
+            width: 50px;
+            height: 50px;
+            background-color: #663F2A;
+            color: #F2E8D3;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .audio-button:hover {
+            background-color: #B35A2E;
+        }
+
+        .audio-button.active {
+            background-color: #DC7F43;
+        }
+
+        /* 游戏状态提示 */
+        .game-status {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #DC7F43;
+            text-shadow: 0 0 10px rgba(220, 127, 67, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .game-status.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="gif-container">
+        <img src="8.gif" alt="8">
+    </div>
+
+    <div class="countdown" id="countdown"></div>
+
+    <div class="game-area" id="gameArea">
+        <div class="ball" id="ball"></div>
+        <div class="barrier">
+            <div class="barrier-hole"></div>
+        </div>
+    </div>
+
+    <div class="timer" id="timer">10</div>
+    <div class="game-status" id="gameStatus"></div>
+
+    <div class="hint-text" id="hintText">~控制音量大小~</div>
+
+    <div class="error-message" id="errorMessage"></div>
+
+    <button class="arrow-button" id="nextButton" onclick="window.location.href='oii.html'">→</button>
+
+    <div class="button-container">
+        <button class="audio-button" onclick="playAudio('mp3', this)">1</button>
+        <button class="audio-button" onclick="playAudio('2', this)">2</button>
+        <button class="audio-button" onclick="playAudio('3', this)">3</button>
+    </div>
+
+    <script>
+        let audioContext;
+        let analyser;
+        let microphone;
+        let currentAudio = null;
+        let isListening = false;
+        let gameActive = false;
+        let gameTimer = null;
+        let ballMovementInterval = null;
+        let currentAudioIndex = 0;
+        const audioFiles = ['mp3', '2', '3'];
+
+        // 分析音量并移动小球
+        async function analyzeVolume() {
+            if (!isListening || !gameActive) return;
+            
+            const ball = document.getElementById('ball');
+            const gameArea = document.getElementById('gameArea');
+            const areaHeight = gameArea.offsetHeight;
+            
+            try {
+                // 创建音频分析器
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                analyser.minDecibels = -90;
+                analyser.maxDecibels = -10;
+                analyser.smoothingTimeConstant = 0.2; // 降低平滑度以提高响应速度
+                microphone.connect(analyser);
+                
+                // 创建音量指示器
+                const volumeIndicator = document.createElement('div');
+                volumeIndicator.className = 'volume-indicator';
+                document.body.appendChild(volumeIndicator);
+                
+                // 创建音量偏差指示器
+                const volumeGauge = document.createElement('div');
+                volumeGauge.className = 'volume-gauge';
+                const gaugeIndicator = document.createElement('div');
+                gaugeIndicator.className = 'gauge-indicator';
+                const gaugeCenter = document.createElement('div');
+                gaugeCenter.className = 'gauge-center';
+                volumeGauge.appendChild(gaugeCenter);
+                volumeGauge.appendChild(gaugeIndicator);
+                document.body.appendChild(volumeGauge);
+
+                // 创建音频处理器
+                const processor = audioContext.createScriptProcessor(1024, 1, 1); // 减小缓冲区大小以提高响应速度
+                analyser.connect(processor);
+                processor.connect(audioContext.destination);
+
+                // 用于平滑音量值的变量
+                let smoothVolume = 0.1; // 设置一个初始值，避免log(0)
+                const smoothingFactor = 0.2; // 平滑因子
+                let lastDb = 30; // 初始基准音量
+                let lastStablePosition = 30; // 记录上一次稳定的位置
+                let positionHoldTime = 0; // 位置保持时间计数器
+
+                processor.onaudioprocess = function(e) {
+                    const inputData = e.inputBuffer.getChannelData(0);
+                    let sumSquares = 0;
+                    for (let i = 0; i < inputData.length; i++) {
+                        sumSquares += inputData[i] * inputData[i];
+                    }
+                    let rms = Math.sqrt(sumSquares / inputData.length);
+                    smoothVolume = smoothVolume * (1 - smoothingFactor) + rms * smoothingFactor;
+
+                    // 调试信息
+                    console.log("原始RMS:", rms);
+                    console.log("平滑后的音量:", smoothVolume);
+
+                    // 计算分贝值，添加一个基准值避免负值
+                    const db = 20 * Math.log10(smoothVolume + 0.0001); // 添加一个小的基准值
+                    console.log("计算的分贝值:", db);
+
+                    // 显示更新
+                    volumeIndicator.textContent = `${Math.round(db)} dB`;
+                    volumeIndicator.classList.add('active');
+                    volumeGauge.classList.add('active');
+
+                    // 更新音量偏差指针
+                    const targetDb = 40;
+                    const deviation = Math.max(-20, Math.min(20, db - targetDb));
+                    const position = 50 + (deviation / 20) * 50;
+                    gaugeIndicator.style.left = `${position}%`;
+
+                    // 核心逻辑：调整小球移动范围
+                    const dbDiff = db - lastDb;
+                    lastDb = db;
+
+                    // 只有当音量变化超过阈值时才移动小球
+                    if (Math.abs(dbDiff) > 0.5) {
+                        const movement = dbDiff * 1.5; // 保持移动系数
+                        const currentBottom = parseFloat(ball.style.bottom) || 30; // 基准位置
+                        let newBottom = currentBottom + movement;
+
+                        // 限制范围在 30 到 180px
+                        newBottom = Math.max(30, Math.min(180, newBottom));
+                        
+                        // 如果位置变化不大，增加保持时间
+                        if (Math.abs(newBottom - lastStablePosition) < 5) {
+                            positionHoldTime++;
+                            if (positionHoldTime < 20) { // 保持约2秒（假设每秒10帧）
+                                newBottom = lastStablePosition;
+                            }
+                        } else {
+                            positionHoldTime = 0;
+                            lastStablePosition = newBottom;
+                        }
+                        
+                        ball.style.bottom = `${newBottom}px`;
+                    }
+                };
+                
+                // 清理函数
+                return function cleanup() {
+                    processor.disconnect();
+                    analyser.disconnect();
+                    volumeIndicator.remove();
+                    volumeGauge.remove();
+                };
+            } catch (error) {
+                console.error('Error initializing volume detection:', error);
+            }
+        }
+
+        // 初始化麦克风
+        async function initMicrophone() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    } 
+                });
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                isListening = true;
+                return analyzeVolume();
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+            }
+        }
+
+        // 开始游戏
+        function startGame() {
+            gameActive = true;
+            const timer = document.getElementById('timer');
+            const ball = document.getElementById('ball');
+            
+            // 显示计时器
+            timer.classList.add('active');
+            
+            // 重置小球位置到底部
+            ball.style.left = '20%';
+            ball.style.bottom = '30px'; // 初始位置设为30px
+            ball.style.top = 'auto';
+            
+            // 开始计时
+            let timeLeft = 10;
+            timer.textContent = timeLeft;
+            
+            // 计算小球移动速度
+            const ballStartPosition = 20;
+            const ballEndPosition = 80;
+            const totalDistance = ballEndPosition - ballStartPosition;
+            const moveInterval = 100;
+            const stepsPerSecond = 1000 / moveInterval;
+            const totalSteps = 10 * stepsPerSecond;
+            const distancePerStep = totalDistance / totalSteps;
+            
+            // 根据当前音频文件设置挡板间隙位置
+            let gapMin, gapMax;
+            switch(currentAudioIndex) {
+                case 0: // 音频1
+                    gapMin = 40;
+                    gapMax = 160;
+                    break;
+                case 1: // 音频2 - 挡板间隙位置高一点
+                    gapMin = 60;
+                    gapMax = 180;
+                    break;
+                case 2: // 音频3 - 挡板间隙位置低一点
+                    gapMin = 20;
+                    gapMax = 140;
+                    break;
+            }
+            
+            // 开始小球移动
+            let currentStep = 0;
+            ballMovementInterval = setInterval(() => {
+                if (!gameActive) return;
+                
+                currentStep++;
+                const newPosition = ballStartPosition + (distancePerStep * currentStep);
+                ball.style.left = `${newPosition}%`;
+                
+                // 检查是否碰到挡板
+                const ballBottom = parseFloat(ball.style.bottom);
+                // 使用当前音频对应的挡板间隙位置
+                if (newPosition >= ballEndPosition && ballBottom >= gapMin && ballBottom <= gapMax) {
+                    endGame(true); // 成功通过
+                } else if (newPosition >= ballEndPosition) {
+                    endGame(false); // 失败
+                }
+            }, moveInterval);
+            
+            // 开始倒计时
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                timer.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+            
+            // 初始化麦克风
+            initMicrophone();
+        }
+
+        // 结束游戏
+        function endGame(isWin) {
+            gameActive = false;
+            clearInterval(gameTimer);
+            clearInterval(ballMovementInterval);
+            
+            const gameArea = document.getElementById('gameArea');
+            const timer = document.getElementById('timer');
+            const gameStatus = document.getElementById('gameStatus');
+            
+            // 显示游戏结果
+            gameStatus.textContent = isWin ? '胜利！' : '失败！';
+            gameStatus.classList.add('active');
+            
+            // 3秒后隐藏游戏区域和状态
+            setTimeout(() => {
+                gameArea.style.display = 'none';
+                timer.classList.remove('active');
+                gameStatus.classList.remove('active');
+                
+                if (isWin) {
+                    // 如果胜利，播放下一段音频
+                    currentAudioIndex = (currentAudioIndex + 1) % audioFiles.length;
+                    const nextButton = document.querySelectorAll('.audio-button')[currentAudioIndex];
+                    playAudio(audioFiles[currentAudioIndex], nextButton);
+                }
+            }, 3000);
+        }
+
+        // 显示倒计时
+        function showCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            let count = 3;
+            
+            function updateCount() {
+                if (count > 0) {
+                    countdownElement.textContent = count;
+                    countdownElement.classList.add('active');
+                    count--;
+                    setTimeout(() => {
+                        countdownElement.classList.remove('active');
+                        setTimeout(updateCount, 300);
+                    }, 300);
+                }
+            }
+            
+            updateCount();
+        }
+
+        async function playAudio(audioFile, button) {
+            // 移除其他按钮的active类
+            document.querySelectorAll('.audio-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 添加active类到当前按钮
+            button.classList.add('active');
+
+            // 更新挡板位置
+            const barrier = document.querySelector('.barrier');
+            barrier.className = 'barrier'; // 重置类名
+            if (audioFile === '2') {
+                barrier.classList.add('audio2');
+            } else if (audioFile === '3') {
+                barrier.classList.add('audio3');
+            }
+
+            try {
+                // 停止当前播放的音频
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                }
+
+                // 创建新的音频元素
+                const audioPath = audioFile === 'mp3' ? '音频.mp3' : `音频${audioFile}.mp3`;
+                console.log('正在加载音频:', audioPath);
+                currentAudio = new Audio(audioPath);
+                
+                // 等待音频加载完成以获取持续时间
+                await new Promise((resolve, reject) => {
+                    currentAudio.addEventListener('loadedmetadata', () => {
+                        console.log('音频加载完成，时长:', currentAudio.duration);
+                        resolve();
+                    });
+                    currentAudio.addEventListener('error', (e) => {
+                        console.error('音频加载失败:', e);
+                        reject(e);
+                    });
+                });
+                
+                // 开始播放
+                console.log('开始播放音频');
+                await currentAudio.play();
+
+                // 在1秒时显示倒计时
+                if (audioFile === 'mp3') {
+                    setTimeout(showCountdown, 1000);
+                }
+
+                // 音频播放结束后开始游戏
+                currentAudio.addEventListener('ended', () => {
+                    console.log('音频播放结束');
+                    startGame();
+                });
+            } catch (error) {
+                console.error('Error playing audio:', error);
+                alert('音频播放失败，请检查音频文件是否存在');
+            }
+        }
+    </script>
+</body>
+</html> 

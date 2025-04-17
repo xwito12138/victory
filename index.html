@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #F2E8D3;
+            font-family: 'Microsoft YaHei', sans-serif;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .click-gif {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            pointer-events: none;
+            animation: appearAndFloat 1s ease-out forwards;
+            z-index: 10;
+        }
+
+        .click-gif.falling {
+            animation: none;
+            transition: transform 0.1s linear;
+        }
+
+        .click-gif img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* 条纹背景 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: repeating-linear-gradient(
+                0deg,
+                #DC7F43 0,
+                #DC7F43 100px,
+                #F2E8D3 100px,
+                #F2E8D3 200px
+            );
+            transform: rotate(45deg);
+            animation: moveStripes 20s linear infinite;
+            z-index: 0;
+        }
+
+        /* 猫猫头图案 */
+        .cat-pattern {
+            position: absolute;
+            width: 300%;
+            height: 300%;
+            top: -100%;
+            left: -100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='200' height='150' viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50,60 C60,30 75,40 85,60 C95,58 105,58 115,60 C125,40 140,30 150,60 C170,90 170,120 100,120 C30,120 30,90 50,60 Z' fill='%23F2E8D3'/%3E%3C/svg%3E"),
+                          url("data:image/svg+xml,%3Csvg width='200' height='150' viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50,60 C60,30 75,40 85,60 C95,58 105,58 115,60 C125,40 140,30 150,60 C170,90 170,120 100,120 C30,120 30,90 50,60 Z' fill='%23DC7F43'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            opacity: 1;
+            animation: movePattern 10s linear infinite;
+            z-index: 1;
+            transform: rotate(45deg);
+            background-size: 200px 150px, 200px 150px;
+            background-position: 0 0, 100px 0;
+        }
+
+        .dialog-box {
+            width: 500px;
+            height: 200px;
+            background-color: #663F2A;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: fadeIn 0.5s ease-in-out, float 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .dialog-box:hover {
+            transform: scale(1.02);
+        }
+
+        .dialog-box::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 2px solid #F2E8D3;
+            border-radius: 8px;
+        }
+
+        .welcome-text {
+            font-size: 24px;
+            color: #F2E8D3;
+            margin: 0;
+        }
+
+        .hint-text {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #663F2A;
+            font-size: 14px;
+            font-style: italic;
+            z-index: 2;
+            opacity: 0;
+            animation: fadeInHint 2s ease-in-out forwards, float 3s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes appearAndFloat {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) translateY(0);
+            }
+            20% {
+                opacity: 1;
+                transform: scale(1.2) translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(-40px);
+            }
+        }
+
+        @keyframes moveStripes {
+            0% {
+                transform: rotate(45deg) translate(0, 0);
+            }
+            100% {
+                transform: rotate(45deg) translate(100px, 100px);
+            }
+        }
+
+        @keyframes movePattern {
+            0% {
+                background-position: 0 0, 100px 0;
+            }
+            100% {
+                background-position: 200px 0, 300px 0;
+            }
+        }
+
+        @keyframes fadeInHint {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body onclick="createGif(event)">
+    <div class="cat-pattern"></div>
+    <div class="dialog-box" onclick="navigate(event)">
+        <h1 class="welcome-text">欢迎来到猫meme的国度</h1>
+    </div>
+    <div class="hint-text">~点击页面任意处与猫meme国度的居民见个面吧~</div>
+
+    <audio id="audio1" preload="auto">
+        <source src="audio1.mp3" type="audio/mpeg">
+        <source src="audio1.ogg" type="audio/ogg">
+        <source src="audio1.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <audio id="audio2" preload="auto">
+        <source src="audio2.mp3" type="audio/mpeg">
+        <source src="audio2.ogg" type="audio/ogg">
+        <source src="audio2.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <audio id="audio3" preload="auto">
+        <source src="audio3.mp3" type="audio/mpeg">
+        <source src="audio3.ogg" type="audio/ogg">
+        <source src="audio3.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        let gifCount = 0;
+        const MAX_GIFS = 30;
+        const GRAVITY = 0.5;
+        const BOUNCE_FACTOR = 0.6;
+        const FRICTION = 0.99;
+        let audioElement = null;
+        let isAudioPlaying = false;
+
+        class GifPhysics {
+            constructor(element, x, y) {
+                this.element = element;
+                this.x = x;
+                this.y = y;
+                this.velocityY = 0;
+                this.velocityX = 0;
+                this.isFalling = false;
+            }
+
+            update() {
+                if (!this.isFalling) return;
+
+                this.velocityY += GRAVITY;
+                this.velocityX *= FRICTION;
+                this.y += this.velocityY;
+                this.x += this.velocityX;
+
+                // 检查是否到达底部
+                if (this.y > window.innerHeight - 180) {
+                    this.y = window.innerHeight - 180;
+                    this.velocityY = -this.velocityY * BOUNCE_FACTOR;
+                    
+                    // 如果速度很小，停止运动
+                    if (Math.abs(this.velocityY) < 1) {
+                        this.velocityY = 0;
+                    }
+                }
+
+                // 检查左右边界
+                if (this.x < 0) {
+                    this.x = 0;
+                    this.velocityX = -this.velocityX * BOUNCE_FACTOR;
+                } else if (this.x > window.innerWidth - 180) {
+                    this.x = window.innerWidth - 180;
+                    this.velocityX = -this.velocityX * BOUNCE_FACTOR;
+                }
+
+                this.element.style.left = this.x + 'px';
+                this.element.style.top = this.y + 'px';
+            }
+        }
+
+        const gifs = new Set();
+
+        function playAudio(index) {
+            if (isAudioPlaying) {
+                audioElement.pause();
+                audioElement.currentTime = 0;
+            }
+            
+            // 使用预加载的音频元素
+            audioElement = document.getElementById(`audio${index}`);
+            if (!audioElement) {
+                console.error(`Audio element for index ${index} not found`);
+                return;
+            }
+
+            audioElement.play().then(() => {
+                isAudioPlaying = true;
+            }).catch(error => {
+                console.error('音频播放失败:', error);
+                // 尝试使用备用音频源
+                const audio = new Audio(`audio${index}.mp3`);
+                audio.play().catch(err => {
+                    console.error('备用音频源也播放失败:', err);
+                });
+            });
+
+            audioElement.onended = () => {
+                isAudioPlaying = false;
+            };
+        }
+
+        function createGif(event) {
+            // 如果点击的是对话框，不创建GIF
+            if (event.target.closest('.dialog-box')) {
+                return;
+            }
+
+            // 如果达到最大数量，清除所有GIF
+            if (gifCount >= MAX_GIFS) {
+                clearAllGifs();
+                return;
+            }
+
+            // 创建新的GIF元素
+            const gif = document.createElement('div');
+            gif.className = 'click-gif';
+            
+            // 随机选择1-16的GIF
+            const randomGifNumber = Math.floor(Math.random() * 16) + 1;
+            
+            // 创建img元素
+            const img = document.createElement('img');
+            img.src = `${randomGifNumber}.gif`;
+            img.alt = `GIF ${randomGifNumber}`;
+            
+            // 将img添加到gif div中
+            gif.appendChild(img);
+            
+            // 设置GIF的初始位置
+            const x = event.clientX - 90;  // 居中GIF (180px/2)
+            const y = event.clientY - 90;  // 居中GIF (180px/2)
+            gif.style.left = x + 'px';
+            gif.style.top = y + 'px';
+            
+            // 将GIF添加到body
+            document.body.appendChild(gif);
+
+            // 播放对应的音频
+            playAudio(randomGifNumber);
+
+            // 创建物理对象
+            const physics = new GifPhysics(gif, x, y);
+            gifs.add(physics);
+
+            // 1秒后开始下落
+            setTimeout(() => {
+                gif.classList.add('falling');
+                physics.isFalling = true;
+                gifCount++;
+            }, 1000);
+        }
+
+        function clearAllGifs() {
+            gifs.forEach(physics => {
+                physics.element.remove();
+            });
+            gifs.clear();
+            gifCount = 0;
+        }
+
+        // 动画循环
+        function animate() {
+            gifs.forEach(physics => physics.update());
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        function navigate(event) {
+            event.stopPropagation(); // 阻止事件冒泡
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease-in-out';
+            
+            setTimeout(() => {
+                window.location.href = 'story.html';
+            }, 500);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度 - 游戏规则</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #F2E8D3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            padding-bottom: 50px;
+        }
+
+        .title {
+            color: #663F2A;
+            font-size: 36px;
+            margin-bottom: 20px;
+            margin-top: -50px;
+            font-weight: bold;
+        }
+
+        .rules-container {
+            position: relative;
+            width: 60%;
+            max-width: 600px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .rules-image {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+            display: none;
+        }
+
+        .rules-image.active {
+            display: block;
+        }
+
+        .nav-arrow {
+            position: absolute;
+            bottom: -70px;
+            width: 50px;
+            height: 50px;
+            background-color: #663F2A;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            color: #F2E8D3;
+            font-size: 24px;
+            border: none;
+            font-weight: bold;
+        }
+
+        .nav-arrow:hover {
+            background-color: #B35A2E;
+        }
+
+        .prev-arrow {
+            left: 0;
+        }
+
+        .next-arrow {
+            right: 0;
+        }
+
+        .start-text {
+            position: absolute;
+            bottom: -100px;
+            right: 0;
+            color: #663F2A;
+            opacity: 0.4;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">游戏规则</h1>
+    <div class="rules-container">
+        <img src="规则8.png" alt="游戏规则8" class="rules-image active" id="rule8">
+        <img src="规则9.png" alt="游戏规则9" class="rules-image" id="rule9">
+        <img src="规则10.png" alt="游戏规则10" class="rules-image" id="rule10">
+        <img src="规则11.png" alt="游戏规则11" class="rules-image" id="rule11">
+        <img src="规则12.png" alt="游戏规则12" class="rules-image" id="rule12">
+        <img src="规则17.png" alt="游戏规则17" class="rules-image" id="rule17">
+        <button class="nav-arrow prev-arrow" onclick="prevRule()">←</button>
+        <button class="nav-arrow next-arrow" onclick="nextRule()">→</button>
+        <div class="start-text" id="startText">开始冒险</div>
+    </div>
+
+    <script>
+        let currentRule = 8;
+        const totalRules = 17;
+        const startRule = 8;
+
+        function showRule(ruleNumber) {
+            // Hide all rules
+            const rules = [8, 9, 10, 11, 12, 17];
+            rules.forEach(rule => {
+                document.getElementById(`rule${rule}`).classList.remove('active');
+            });
+            // Show current rule
+            document.getElementById(`rule${ruleNumber}`).classList.add('active');
+            
+            // Show/hide start text
+            document.getElementById('startText').style.display = ruleNumber === totalRules ? 'block' : 'none';
+        }
+
+        function prevRule() {
+            if (currentRule > startRule) {
+                currentRule--;
+                showRule(currentRule);
+            } else {
+                window.location.href = 'first.html';
+            }
+        }
+
+        function nextRule() {
+            if (currentRule === 12) {
+                currentRule = 17;
+                showRule(currentRule);
+            } else if (currentRule === totalRules) {
+                window.location.href = 'part3.html';
+            } else {
+                currentRule = (currentRule % totalRules) + 1;
+                showRule(currentRule);
+            }
+        }
+    </script>
+</body>
+</html> 

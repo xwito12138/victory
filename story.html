@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度 - 故事</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #F2E8D3;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+        }
+
+        .accordion-container {
+            display: flex;
+            width: calc(100% - 200px);
+            height: calc(100vh - 200px);
+            position: relative;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+            background-color: #F2E8D3;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .accordion-item {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 5px;
+            border-radius: 10px;
+        }
+
+        .accordion-item:first-child {
+            margin-left: 0;
+        }
+
+        .accordion-item:last-child {
+            margin-right: 0;
+        }
+
+        .accordion-item:hover {
+            flex: 3;
+        }
+
+        .accordion-item:not(:hover) {
+            flex: 0.5;
+        }
+
+        .accordion-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.5s ease-in-out;
+            border-radius: 10px;
+            box-shadow: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .accordion-item .default-cover {
+            z-index: 2;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .accordion-item .content-image {
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 0.5s ease-in-out;
+            transition-delay: 0.5s;
+        }
+
+        .accordion-item:hover .default-cover {
+            opacity: 0;
+        }
+
+        .accordion-item:hover .content-image {
+            opacity: 1;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+            border-radius: 10px;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 3;
+        }
+
+        .accordion-item:hover .overlay {
+            opacity: 0;
+        }
+
+        .number {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 18px;
+            color: #663F2A;
+            text-shadow: none;
+            z-index: 4;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .number:hover {
+            transform: scale(1.1);
+        }
+
+        .subtitle {
+            position: fixed;
+            bottom: 40px;
+            left: 120px;
+            background-color: rgba(102, 63, 42, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-in-out;
+            z-index: 3;
+            box-shadow: none;
+        }
+
+        .subtitle.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 0;
+        }
+
+        .accordion-item:hover .video-background {
+            opacity: 1;
+            transition-delay: 0.5s;
+        }
+
+        .accordion-item .default-cover {
+            z-index: 2;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .accordion-item:hover .default-cover {
+            opacity: 0;
+        }
+
+        .accordion-item .content-image {
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .accordion-item:hover .content-image {
+            opacity: 1;
+        }
+
+        .page3-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 0;
+        }
+
+        .page3-background::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: repeating-linear-gradient(
+                0deg,
+                #DC7F43 0,
+                #DC7F43 100px,
+                #F2E8D3 100px,
+                #F2E8D3 200px
+            );
+            transform: rotate(45deg);
+            animation: moveStripes 10s linear infinite;
+            z-index: 0;
+        }
+
+        .page3-background::after {
+            content: '';
+            position: absolute;
+            width: 300%;
+            height: 300%;
+            top: -100%;
+            left: -100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='200' height='150' viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50,60 C60,30 75,40 85,60 C95,58 105,58 115,60 C125,40 140,30 150,60 C170,90 170,120 100,120 C30,120 30,90 50,60 Z' fill='%23F2E8D3'/%3E%3C/svg%3E"),
+                          url("data:image/svg+xml,%3Csvg width='200' height='150' viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50,60 C60,30 75,40 85,60 C95,58 105,58 115,60 C125,40 140,30 150,60 C170,90 170,120 100,120 C30,120 30,90 50,60 Z' fill='%23DC7F43'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            opacity: 1;
+            animation: movePattern 5s linear infinite;
+            z-index: 1;
+            transform: rotate(45deg);
+            background-size: 200px 150px, 200px 150px;
+            background-position: 0 0, 100px 0;
+        }
+
+        @keyframes moveStripes {
+            0% {
+                transform: rotate(45deg) translateY(0);
+            }
+            100% {
+                transform: rotate(45deg) translateY(200px);
+            }
+        }
+
+        @keyframes movePattern {
+            0% {
+                transform: rotate(45deg) translateY(0);
+            }
+            100% {
+                transform: rotate(45deg) translateY(200px);
+            }
+        }
+
+        .accordion-item:hover .page3-background {
+            opacity: 1;
+            transition-delay: 0.5s;
+        }
+
+        .page3-dialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background-color: #663F2A;
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-family: 'Microsoft YaHei', sans-serif;
+            font-weight: bold;
+            font-size: 72px;
+            color: #F2E8D3;
+            opacity: 0;
+            z-index: 2;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .gif-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            display: none;
+        }
+
+        .accordion-item:hover .gif-container {
+            display: block;
+        }
+
+        .falling-gif {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            transform: scale(0.25);
+            animation: fallDown 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        .trailing-gif {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            transform: scale(0.25);
+            pointer-events: none;
+            box-shadow: none;
+            transition: all 0.1s ease-out;
+        }
+
+        @keyframes fallDown {
+            0% {
+                transform: translateY(-100px) scale(0.25);
+                opacity: 0;
+            }
+            50% {
+                transform: translateY(-20px) scale(0.25);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(var(--target-y)) scale(0.25);
+                opacity: 1;
+            }
+        }
+
+        .accordion-item:hover .page3-dialog {
+            opacity: 1;
+            animation: dialogJump 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes dialogJump {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8) translateY(100px);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2) translateY(-50px);
+            }
+            75% {
+                transform: translate(-50%, -50%) scale(0.9) translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) translateY(0);
+            }
+        }
+
+        .ring-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .accordion-item:hover .ring-container {
+            display: flex;
+        }
+
+        .ring-image {
+            position: absolute;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .ring-image.active {
+            opacity: 1;
+        }
+
+        .ring-1 { left: 2%; animation: jumpIn 0.6s ease-out 0.1s forwards; }
+        .ring-2 { left: 24.5%; animation: jumpIn 0.6s ease-out 0.2s forwards; }
+        .ring-3 { left: 50%; transform: translateX(-50%) scale(0.33); animation: jumpIn 0.6s ease-out 0.3s forwards; }
+        .ring-4 { right: 27.5%; animation: jumpIn 0.6s ease-out 0.4s forwards; }
+        .ring-5 { right: 5%; animation: jumpIn 0.6s ease-out 0.5s forwards; }
+
+        @keyframes jumpIn {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.33);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-20px) scale(0.33);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(0.33);
+            }
+        }
+
+        .page4-background {
+            display: none;
+        }
+
+        .character-container {
+            display: none;
+        }
+
+        .missing-text {
+            display: none;
+        }
+
+        .arrow-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #663F2A;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+
+        .arrow-button:hover {
+            transform: scale(1.1);
+        }
+
+        .arrow-button::after {
+            content: '→';
+            color: #F2E8D3;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .page2 img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .page2 {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="accordion-container">
+        <div class="accordion-item" data-index="1">
+            <img src="书封.png" alt="书封" class="default-cover">
+            <video class="video-background" muted loop autoplay>
+                <source src="视频背景1.mp4" type="video/mp4">
+            </video>
+            <div class="overlay"></div>
+            <div class="number">I</div>
+        </div>
+        <div class="accordion-item" data-index="2">
+            <img src="书封.png" alt="书封" class="default-cover">
+            <video class="video-background" muted loop autoplay>
+                <source src="视频背景2.mp4" type="video/mp4">
+            </video>
+            <div class="overlay"></div>
+            <div class="number">II</div>
+        </div>
+        <div class="accordion-item" data-index="3">
+            <img src="书封.png" alt="书封" class="default-cover">
+            <div class="page3-background"></div>
+            <div class="page3-dialog">猫meme</div>
+            <div class="overlay"></div>
+            <div class="number">III</div>
+        </div>
+        <div class="accordion-item" data-index="4">
+            <img src="书封.png" alt="书封" class="default-cover">
+            <video class="video-background" muted loop autoplay>
+                <source src="视频背景4.mp4" type="video/mp4">
+            </video>
+            <div class="overlay"></div>
+            <div class="number">IV</div>
+        </div>
+        <div class="accordion-item" data-index="5">
+            <img src="书封.png" alt="书封" class="default-cover">
+            <video class="video-background" muted loop autoplay>
+                <source src="视频背景5.mp4" type="video/mp4">
+            </video>
+            <div class="overlay"></div>
+            <div class="number">V</div>
+        </div>
+    </div>
+    <div class="subtitle"></div>
+    <div class="arrow-button"></div>
+
+    <script>
+        const subtitles = [
+            "从前有一个神秘的国度",
+            "住着一群特别的居民",
+            "它们有一个共同的名字",
+            "但是最近国度里有三位居民失踪了",
+            "作为猫meme国度的勇士快去找到它们！"
+        ];
+
+        const items = document.querySelectorAll('.accordion-item');
+        const subtitle = document.querySelector('.subtitle');
+        let currentIndex = -1;
+
+        items.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                const index = parseInt(item.dataset.index) - 1;
+                if (currentIndex !== index) {
+                    currentIndex = index;
+                    subtitle.textContent = subtitles[index];
+                    subtitle.classList.add('active');
+                }
+            });
+
+            item.addEventListener('mouseleave', () => {
+                subtitle.classList.remove('active');
+            });
+        });
+
+        // Add click event to navigate to part1.html
+        const number = document.querySelector('.number');
+        number.addEventListener('click', () => {
+            window.location.href = 'gun.html';
+        });
+
+        // Add click event to arrow button
+        const arrowButton = document.querySelector('.arrow-button');
+        arrowButton.addEventListener('click', () => {
+            window.location.href = 'gun.html';
+        });
+
+        // Add video playback control
+        const videos = document.querySelectorAll('.video-background');
+        videos.forEach(video => {
+            video.addEventListener('mouseenter', () => {
+                video.currentTime = 0;
+                video.play();
+            });
+
+            video.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+        });
+
+        // Initialize page3 background
+        const page3Background = document.querySelector('.page3-background');
+        if (page3Background) {
+            page3Background.style.background = 'linear-gradient(45deg, #DC7F43, #F2E8D3)';
+        }
+
+        function nextPage() {
+            window.location.href = 'gun.html';
+        }
+    </script>
+</body>
+</html> 

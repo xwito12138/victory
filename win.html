@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度 - 胜利</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #F2E8D3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: #663F2A;
+        }
+
+        .victory-message {
+            text-align: center;
+        }
+
+        .victory-message h1 {
+            font-size: 72px;
+            margin-bottom: 20px;
+            margin-left: 20px;
+        }
+
+        .victory-message p {
+            font-size: 24px;
+        }
+
+        .next-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: #663F2A;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #F2E8D3;
+            font-size: 24px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .next-button:hover {
+            background-color: #B35A2E;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="victory-message">
+        <h1>胜利！</h1>
+        <p>亲爱的勇士，恭喜你找回了迷失的猫meme</p>
+    </div>
+    <div class="next-button">→</div>
+    <script>
+        document.querySelector('.next-button').addEventListener('click', () => {
+            window.location.href = 'sing.html';
+        });
+    </script>
+</body>
+</html> 

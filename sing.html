@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度 - 过场动画</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #F2E8D3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+        }
+
+        .video-container {
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+            margin-bottom: 80px;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .dialog-container {
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -60px;
+        }
+
+        .dialog-box {
+            width: 100%;
+            background-color: #663F2A;
+            color: #F2E8D3;
+            padding: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            user-select: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .dialog-box.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* 添加图片显示区域样式 */
+        .dialog-image {
+            position: fixed;
+            bottom: 170px;
+            right: 280px;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .dialog-image.active {
+            opacity: 1;
+        }
+
+        .dialog-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .arrows-container {
+            position: absolute;
+            bottom: -80px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .nav-arrow {
+            width: 40px;
+            height: 40px;
+            background-color: #F2E8D3;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #663F2A;
+            font-size: 20px;
+            border: none;
+            font-weight: bold;
+            margin: 0 20px;
+            z-index: 1;
+        }
+
+        .nav-arrow:hover {
+            background-color: #B35A2E;
+            color: #F2E8D3;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <video autoplay muted>
+            <source src="过场3.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="dialog-container">
+        <div class="dialog-box active" id="dialog1">
+            <span>恭喜你，亲爱的勇士！</span>
+        </div>
+        <div class="dialog-box" id="dialog2">
+            <span>你已经成功找回了一只猫meme，再接再厉！</span>
+        </div>
+        <div class="dialog-box" id="dialog3">
+            <span>快看！那不是失踪了的嗓门超大猫吗？</span>
+        </div>
+        <div class="dialog-box" id="dialog4">
+            <span>它似乎想和你比拼一下在音乐上的造诣</span>
+        </div>
+        <div class="dialog-box" id="dialog5">
+            <span>快上勇士！</span>
+        </div>
+        <div class="arrows-container">
+            <button class="nav-arrow" onclick="prevDialog()">←</button>
+            <button class="nav-arrow" onclick="nextDialog()">→</button>
+        </div>
+    </div>
+
+    <div class="dialog-image">
+        <img src="正常.png" alt="正常">
+    </div>
+    <div class="dialog-image">
+        <img src="喜悦.png" alt="喜悦">
+    </div>
+    <div class="dialog-image">
+        <img src="震惊.png" alt="震惊">
+    </div>
+    <div class="dialog-image">
+        <img src="奇怪.png" alt="奇怪">
+    </div>
+    <div class="dialog-image">
+        <img src="正常.png" alt="正常">
+    </div>
+
+    <script>
+        let currentDialog = 1;
+        const totalDialogs = 5;
+
+        function updateDialogs() {
+            for (let i = 1; i <= totalDialogs; i++) {
+                const dialog = document.getElementById(`dialog${i}`);
+                const image = document.querySelectorAll('.dialog-image')[i-1];
+                if (i === currentDialog) {
+                    dialog.classList.add('active');
+                    image.classList.add('active');
+                } else {
+                    dialog.classList.remove('active');
+                    image.classList.remove('active');
+                }
+            }
+        }
+
+        function prevDialog() {
+            currentDialog = (currentDialog - 1 + totalDialogs) % totalDialogs || totalDialogs;
+            updateDialogs();
+        }
+
+        function nextDialog() {
+            if (currentDialog === totalDialogs) {
+                window.location.href = 'second.html';
+            } else {
+                currentDialog = (currentDialog % totalDialogs) + 1;
+                updateDialogs();
+            }
+        }
+
+        function showNextDialog() {
+            const dialogs = document.querySelectorAll('.dialog-box');
+            const images = document.querySelectorAll('.dialog-image');
+            const currentDialog = document.querySelector('.dialog-box.active');
+            const currentImage = document.querySelector('.dialog-image.active');
+            
+            if (currentDialog) {
+                currentDialog.classList.remove('active');
+                currentImage.classList.remove('active');
+                
+                const nextIndex = (Array.from(dialogs).indexOf(currentDialog) + 1) % dialogs.length;
+                dialogs[nextIndex].classList.add('active');
+                images[nextIndex].classList.add('active');
+            } else {
+                dialogs[0].classList.add('active');
+                images[0].classList.add('active');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstDialog = document.getElementById('dialog1');
+            const firstImage = document.querySelector('.dialog-image');
+            firstDialog.classList.add('active');
+            firstImage.classList.add('active');
+        });
+    </script>
+</body>
+</html> 

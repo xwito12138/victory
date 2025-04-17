@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度 - ROUND</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #F2E8D3;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+        }
+
+        .title {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 64px;
+            color: #663F2A;
+            font-weight: bold;
+            z-index: 1000;
+            display: flex;
+            gap: 15px;
+        }
+
+        .title span {
+            display: inline-block;
+            animation: jump 0.5s ease-in-out;
+            animation-fill-mode: both;
+        }
+
+        @keyframes jump {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .main-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+
+        #imageElement, #gifElement {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            object-fit: contain;
+            transition: all 0.5s ease;
+        }
+
+        #imageElement {
+            opacity: 1;
+        }
+
+        #gifElement {
+            opacity: 0;
+        }
+
+        .video-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            height: 240px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        #videoElement {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .instructions {
+            margin-top: 30px;
+            font-size: 24px;
+            color: #663F2A;
+            text-align: center;
+            max-width: 600px;
+            display: none;
+        }
+
+        .progress-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 800px;
+            height: 30px;
+            background-color: #DC7F43;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #F2E8D3;
+            transition: width 0.3s ease;
+        }
+
+        .status-text {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #663F2A;
+            text-align: center;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 48px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .game-over.active {
+            opacity: 1;
+        }
+
+        .game-over button {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #DC7F43;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .game-over button:hover {
+            background-color: #B35A2E;
+        }
+
+        /* 开发者快捷通道按钮样式 */
+        .dev-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            background-color: #663F2A;
+            color: #F2E8D3;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 1000;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .dev-button:hover {
+            opacity: 1;
+            background-color: #B35A2E;
+        }
+
+        .dev-button:active {
+            transform: scale(0.95);
+        }
+
+        /* 结尾演出样式 */
+        .ending-show {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F2E8D3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .ending-show.active {
+            opacity: 1;
+        }
+
+        .ending-gifs {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+
+        .ending-gif {
+            width: 400px;
+            height: 400px;
+            margin: 0 20px;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s ease;
+        }
+
+        .ending-gif.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .cat-emoji {
+            position: absolute;
+            font-size: 120px;
+            bottom: -50px;
+            animation: riseUp 2s ease-out forwards;
+        }
+
+        @keyframes riseUp {
+            0% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-500px);
+                opacity: 0;
+            }
+        }
+
+        .falling-gif {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            top: -200px;
+            animation: fallDown 3s ease-in forwards;
+        }
+
+        @keyframes fallDown {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(calc(100vh - 200px)) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="title">
+        <span>o</span>
+        <span>i</span>
+        <span>i</span>
+        <span>a</span>
+        <span>i</span>
+        <span>i</span>
+        <span>o</span>
+        <span>o</span>
+    </div>
+    <div class="main-container">
+        <img id="imageElement" src="替换.png" alt="替换">
+        <img id="gifElement" src="3.gif" alt="3">
+    </div>
+    <div class="instructions">
+        请在图片变为3.gif时旋转上半身，在图片变为替换.png时保持静止
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="status-text" id="statusText">准备开始...</div>
+
+    <div class="video-container">
+        <video id="videoElement" autoplay playsinline></video>
+    </div>
+
+    <!-- 开发者快捷通道按钮 -->
+    <button class="dev-button" onclick="activateDevMode()">开发者快捷通道</button>
+
+    <div class="game-over" id="gameOver">
+        <div>游戏结束</div>
+        <button id="restartButton">重新开始</button>
+    </div>
+
+    <!-- 结尾演出容器 -->
+    <div class="ending-show" id="endingShow">
+        <div class="ending-gifs">
+            <img src="3.gif" class="ending-gif" id="endingGif1" alt="3">
+            <img src="3.gif" class="ending-gif" id="endingGif2" alt="3">
+            <img src="3.gif" class="ending-gif" id="endingGif3" alt="3">
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const video = document.getElementById('videoElement');
+        const imageElement = document.getElementById('imageElement');
+        const gifElement = document.getElementById('gifElement');
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('statusText');
+        const gameOver = document.getElementById('gameOver');
+        const restartButton = document.getElementById('restartButton');
+        const mainContainer = document.querySelector('.main-container');
+        const endingShow = document.getElementById('endingShow');
+        const endingGif1 = document.getElementById('endingGif1');
+        const endingGif2 = document.getElementById('endingGif2');
+        const endingGif3 = document.getElementById('endingGif3');
+        
+        // 游戏状态变量
+        let isGifVisible = false;
+        let isRotating = false;
+        let gameActive = true;
+        let progress = 0;
+        let imageSize = 400;
+        let switchInterval;
+        let endingShowActive = false;
+        
+        // 请求摄像头权限
+        async function setupCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 320 },
+                        height: { ideal: 240 }
+                    } 
+                });
+                video.srcObject = stream;
+                return new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve(video);
+                    };
+                });
+            } catch (error) {
+                console.error('无法访问摄像头:', error);
+                alert('无法访问摄像头，请确保已授予摄像头权限。');
+            }
+        }
+
+        // 随机切换图片
+        function switchImages() {
+            if (!gameActive) return;
+            
+            // 随机决定是否切换图片
+            isGifVisible = !isGifVisible;
+            
+            // 更新图片可见性
+            if (isGifVisible) {
+                imageElement.style.opacity = 0;
+                gifElement.style.opacity = 1;
+                statusText.textContent = "oii猫正在旋转，你可以前进了！！";
+                statusText.style.color = "#DC7F43";
+            } else {
+                imageElement.style.opacity = 1;
+                gifElement.style.opacity = 0;
+                statusText.textContent = "oii猫正在凝视你，不要直视它的眼睛？？";
+                statusText.style.color = "#663F2A";
+            }
+            
+            // 每次切换后增加图片大小
+            imageSize += 10; // 每次切换增加10像素
+            imageElement.style.width = `${imageSize}px`;
+            imageElement.style.height = `${imageSize}px`;
+            gifElement.style.width = `${imageSize}px`;
+            gifElement.style.height = `${imageSize}px`;
+            
+            // 设置下一次切换的随机时间（1-10秒）
+            const nextSwitchTime = Math.floor(Math.random() * 9000) + 1000;
+            switchInterval = setTimeout(switchImages, nextSwitchTime);
+        }
+
+        // 检测旋转
+        function detectRotation() {
+            // 创建一个画布来分析视频帧
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d', { willReadFrequently: true });
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // 旋转检测变量
+            let lastFrameData = null;
+            
+            // 用于计算旋转角度的函数
+            function calculateRotationAngle(currentFrameData, lastFrameData) {
+                if (!lastFrameData) return 0;
+                
+                // 使用光流算法或简单的像素差异来估计旋转
+                let diffSum = 0;
+                let pixelCount = 0;
+                
+                // 只分析上半部分区域（假设上半身在视频的上半部分）
+                const upperHalfHeight = Math.floor(canvas.height / 2);
+                
+                for (let y = 0; y < upperHalfHeight; y += 5) {
+                    for (let x = 0; x < canvas.width; x += 5) {
+                        const currentPixel = currentFrameData.data[(y * canvas.width + x) * 4];
+                        const lastPixel = lastFrameData.data[(y * canvas.width + x) * 4];
+                        
+                        // 计算像素差异
+                        const diff = Math.abs(currentPixel - lastPixel);
+                        
+                        diffSum += diff;
+                        pixelCount++;
+                    }
+                }
+                
+                // 返回平均差异，这可以作为旋转的指标
+                return pixelCount > 0 ? diffSum / pixelCount : 0;
+            }
+            
+            function analyzeFrame() {
+                if (!gameActive) return;
+                
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    // 绘制当前视频帧到画布
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    // 获取当前帧数据
+                    const currentFrameData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // 计算旋转角度
+                    const angleChange = calculateRotationAngle(currentFrameData, lastFrameData);
+                    
+                    // 检测是否在旋转
+                    isRotating = angleChange > 5; // 阈值，可调整
+                    
+                    // 根据游戏规则处理旋转
+                    if (isRotating) {
+                        if (isGifVisible) {
+                            // 在3.gif显示时旋转，增加进度
+                            progress += 0.5;
+                            progressBar.style.width = `${progress}%`;
+                            
+                            // 检查是否胜利
+                            if (progress >= 100) {
+                                gameWin();
+                            }
+                        } else {
+                            // 在替换.png显示时旋转，游戏失败
+                            gameLose("在替换.png显示时旋转了！");
+                        }
+                    }
+                    
+                    // 保存当前帧数据用于下一帧比较
+                    lastFrameData = currentFrameData;
+                }
+                
+                // 继续分析下一帧
+                requestAnimationFrame(analyzeFrame);
+            }
+            
+            // 开始分析视频帧
+            analyzeFrame();
+        }
+
+        // 游戏胜利
+        function gameWin() {
+            gameActive = false;
+            clearTimeout(switchInterval);
+            statusText.textContent = "恭喜你赢了！";
+            statusText.style.color = "#4CAF50";
+            
+            // 显示结尾演出
+            showEndingShow();
+        }
+
+        // 显示结尾演出
+        function showEndingShow() {
+            endingShow.classList.add('active');
+            endingShowActive = true;
+            
+            // 依次显示三个3.gif
+            setTimeout(() => {
+                endingGif1.classList.add('active');
+            }, 500);
+            
+            setTimeout(() => {
+                endingGif2.classList.add('active');
+            }, 1500);
+            
+            setTimeout(() => {
+                endingGif3.classList.add('active');
+            }, 2500);
+            
+            // 开始生成上升的猫猫emoji
+            startRisingEmojis();
+            
+            // 3秒后开始掉落随机gif（提前开始）
+            setTimeout(() => {
+                startFallingGifs();
+            }, 3000);
+            
+            // 10秒后跳转到ending页面
+            setTimeout(() => {
+                window.location.href = 'ending.html';
+            }, 10000);
+        }
+        
+        // 生成上升的猫猫emoji
+        function startRisingEmojis() {
+            if (!endingShowActive) return;
+            
+            // 创建猫猫emoji
+            const emoji = document.createElement('div');
+            emoji.className = 'cat-emoji';
+            emoji.textContent = '🐱';
+            
+            // 随机位置
+            const randomX = Math.random() * (window.innerWidth - 50);
+            emoji.style.left = `${randomX}px`;
+            
+            // 添加到页面
+            endingShow.appendChild(emoji);
+            
+            // 动画结束后移除
+            emoji.addEventListener('animationend', () => {
+                emoji.remove();
+            });
+            
+            // 随机间隔后再次生成（增加生成频率）
+            const nextInterval = Math.random() * 250 + 100; // 减少间隔时间
+            setTimeout(startRisingEmojis, nextInterval);
+        }
+        
+        // 生成掉落的随机gif
+        function startFallingGifs() {
+            if (!endingShowActive) return;
+            
+            // 随机选择1-16.gif
+            const randomGifNumber = Math.floor(Math.random() * 16) + 1;
+            const gifSrc = `${randomGifNumber}.gif`;
+            
+            // 创建gif元素
+            const fallingGif = document.createElement('img');
+            fallingGif.className = 'falling-gif';
+            fallingGif.src = gifSrc;
+            
+            // 随机位置
+            const randomX = Math.random() * (window.innerWidth - 200);
+            fallingGif.style.left = `${randomX}px`;
+            
+            // 添加到页面
+            endingShow.appendChild(fallingGif);
+            
+            // 动画结束后移除
+            fallingGif.addEventListener('animationend', () => {
+                fallingGif.remove();
+            });
+            
+            // 随机间隔后再次生成
+            const nextInterval = Math.random() * 800 + 400;
+            setTimeout(startFallingGifs, nextInterval);
+        }
+
+        // 游戏失败
+        function gameLose(reason) {
+            gameActive = false;
+            clearTimeout(switchInterval);
+            window.location.href = 'lose3.html';
+        }
+
+        // 重新开始游戏
+        function restartGame() {
+            gameActive = true;
+            progress = 0;
+            imageSize = 400;
+            progressBar.style.width = "0%";
+            imageElement.style.width = `${imageSize}px`;
+            imageElement.style.height = `${imageSize}px`;
+            gifElement.style.width = `${imageSize}px`;
+            gifElement.style.height = `${imageSize}px`;
+            gameOver.classList.remove('active');
+            statusText.textContent = "准备开始...";
+            statusText.style.color = "#663F2A";
+            
+            // 重新开始图片切换
+            isGifVisible = false;
+            imageElement.style.opacity = 1;
+            gifElement.style.opacity = 0;
+            switchImages();
+        }
+
+        // 开发者模式激活函数
+        function activateDevMode() {
+            console.log('开发者模式激活');
+            gameActive = false;
+            clearTimeout(switchInterval);
+            statusText.textContent = "开发者模式激活！";
+            statusText.style.color = "#DC7F43";
+            
+            // 显示结尾演出
+            showEndingShow();
+        }
+
+        // 添加标题动画
+        function animateTitle() {
+            const letters = document.querySelectorAll('.title span');
+            let currentIndex = 0;
+
+            function animateNext() {
+                if (currentIndex < letters.length) {
+                    letters[currentIndex].style.animation = 'none';
+                    letters[currentIndex].offsetHeight; // 触发重绘
+                    letters[currentIndex].style.animation = 'jump 0.5s ease-in-out';
+                    currentIndex++;
+                } else {
+                    currentIndex = 0;
+                }
+            }
+
+            // 初始动画
+            animateNext();
+
+            // 每500ms触发下一个字母的动画
+            setInterval(animateNext, 500);
+        }
+
+        // 在页面加载时启动标题动画
+        window.addEventListener('load', animateTitle);
+
+        // 修改胜利后的跳转
+        function onVictory() {
+            window.location.href = 'victory.html';
+        }
+
+        // 初始化
+        async function init() {
+            await setupCamera();
+            detectRotation();
+            
+            // 3秒后开始游戏
+            setTimeout(() => {
+                switchImages();
+            }, 3000);
+            
+            // 添加重新开始按钮事件
+            restartButton.addEventListener('click', restartGame);
+        }
+
+        // 启动应用
+        init();
+    </script>
+</body>
+</html> 

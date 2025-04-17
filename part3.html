@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度 - Part3</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #F2E8D3;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 条纹背景 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: repeating-linear-gradient(
+                0deg,
+                #DC7F43 0,
+                #DC7F43 100px,
+                #F2E8D3 100px,
+                #F2E8D3 200px
+            );
+            transform: rotate(45deg);
+            animation: moveStripes 20s linear infinite;
+            z-index: 1;
+        }
+
+        /* 背景遮罩 */
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F2E8D3;
+            opacity: 0.6;
+            z-index: 2;
+        }
+
+        /* 猫猫头图案 */
+        .cat-pattern {
+            position: absolute;
+            width: 300%;
+            height: 300%;
+            top: -100%;
+            left: -100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='200' height='150' viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50,60 C60,30 75,40 85,60 C95,58 105,58 115,60 C125,40 140,30 150,60 C170,90 170,120 100,120 C30,120 30,90 50,60 Z' fill='%23F2E8D3'/%3E%3C/svg%3E"),
+                          url("data:image/svg+xml,%3Csvg width='200' height='150' viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50,60 C60,30 75,40 85,60 C95,58 105,58 115,60 C125,40 140,30 150,60 C170,90 170,120 100,120 C30,120 30,90 50,60 Z' fill='%23DC7F43'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            animation: movePattern 10s linear infinite;
+            z-index: 1;
+            transform: rotate(45deg);
+            background-size: 200px 150px, 200px 150px;
+            background-position: 0 0, 100px 0;
+        }
+
+        @keyframes moveStripes {
+            0% {
+                transform: rotate(45deg) translateY(0);
+            }
+            100% {
+                transform: rotate(45deg) translateY(200px);
+            }
+        }
+
+        @keyframes movePattern {
+            0% {
+                transform: rotate(45deg) translateY(0);
+            }
+            100% {
+                transform: rotate(45deg) translateY(200px);
+            }
+        }
+
+        .random-text {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #663F2A;
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 3;
+        }
+
+        .random-text.active {
+            opacity: 1;
+        }
+
+        .title {
+            font-size: 72px;
+            font-weight: bold;
+            color: #663F2A;
+            opacity: 0;
+            transform: translateY(100px);
+            animation: titleJump 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            z-index: 3;
+        }
+
+        @keyframes titleJump {
+            0% {
+                opacity: 0;
+                transform: translateY(100px);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gif-container {
+            margin: 30px 0;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
+        }
+
+        .gif-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .progress-bar {
+            width: 400px;
+            height: 20px;
+            background: linear-gradient(45deg, #663F2A 25%, transparent 25%),
+                        linear-gradient(-45deg, #663F2A 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #663F2A 75%),
+                        linear-gradient(-45deg, transparent 75%, #663F2A 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            z-index: 3;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background-color: #F2E8D3;
+            animation: progress 5s linear forwards;
+        }
+
+        @keyframes progress {
+            0% {
+                width: 0%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cat-pattern"></div>
+    <div class="random-text"></div>
+    <audio id="bgm" autoplay loop>
+        <source src="9.mp3" type="audio/mp3">
+    </audio>
+
+    <div class="title">PART3</div>
+    <div class="gif-container">
+        <img src="3.gif" alt="3">
+    </div>
+    <div class="progress-bar"></div>
+
+    <script>
+        const texts = [
+            "猫买回家一直响怎么办？",
+            "老师我们家猫真的会后空翻",
+            "不知道用什么形式的话不如就用猫meme好了",
+            "话虽然是这么说，但是为什么猫meme里有狗？",
+            "oiiaioooooiai"
+        ];
+
+        const randomText = document.querySelector('.random-text');
+        const bgm = document.getElementById('bgm');
+
+        // 立即尝试播放音频
+        bgm.play().catch(error => {
+            console.log('自动播放失败，需要用户交互');
+        });
+
+        // 点击页面时播放音乐
+        document.addEventListener('click', () => {
+            bgm.play();
+        });
+
+        function showRandomText() {
+            const randomIndex = Math.floor(Math.random() * texts.length);
+            randomText.textContent = texts[randomIndex];
+            randomText.classList.add('active');
+            
+            setTimeout(() => {
+                randomText.classList.remove('active');
+                setTimeout(showRandomText, 1000);
+            }, 2000);
+        }
+
+        showRandomText();
+
+        setTimeout(() => {
+            window.location.href = 'round.html';
+        }, 5000);
+    </script>
+</body>
+</html> 

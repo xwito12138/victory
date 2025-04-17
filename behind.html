@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度 - 结局</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #F2E8D3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 条纹背景 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: repeating-linear-gradient(
+                0deg,
+                #DC7F43 0,
+                #DC7F43 100px,
+                #F2E8D3 100px,
+                #F2E8D3 200px
+            );
+            transform: rotate(45deg);
+            animation: moveStripes 20s linear infinite;
+            z-index: 0;
+        }
+
+        /* 猫猫头图案 */
+        .cat-pattern {
+            position: absolute;
+            width: 300%;
+            height: 300%;
+            top: -100%;
+            left: -100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='200' height='150' viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50,60 C60,30 75,40 85,60 C95,58 105,58 115,60 C125,40 140,30 150,60 C170,90 170,120 100,120 C30,120 30,90 50,60 Z' fill='%23F2E8D3'/%3E%3C/svg%3E"),
+                          url("data:image/svg+xml,%3Csvg width='200' height='150' viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50,60 C60,30 75,40 85,60 C95,58 105,58 115,60 C125,40 140,30 150,60 C170,90 170,120 100,120 C30,120 30,90 50,60 Z' fill='%23DC7F43'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            opacity: 1;
+            animation: movePattern 10s linear infinite;
+            z-index: 1;
+            transform: rotate(45deg);
+            background-size: 200px 150px, 200px 150px;
+            background-position: 0 0, 100px 0;
+        }
+
+        @keyframes moveStripes {
+            0% { transform: rotate(45deg) translate(0, 0); }
+            100% { transform: rotate(45deg) translate(200px, 200px); }
+        }
+
+        @keyframes movePattern {
+            0% { transform: rotate(45deg) translate(0, 0); }
+            100% { transform: rotate(45deg) translate(200px, 200px); }
+        }
+
+        .dialog-container {
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .dialog-box {
+            width: 100%;
+            background-color: #663F2A;
+            color: #F2E8D3;
+            padding: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            user-select: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .dialog-box.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .arrows-container {
+            position: absolute;
+            bottom: -80px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            z-index: 2;
+        }
+
+        .nav-arrow {
+            width: 40px;
+            height: 40px;
+            background-color: #F2E8D3;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #663F2A;
+            font-size: 20px;
+            border: none;
+            font-weight: bold;
+            margin: 0 20px;
+        }
+
+        .nav-arrow:hover {
+            background-color: #B35A2E;
+            color: #F2E8D3;
+            transform: scale(1.1);
+        }
+
+        .upload-container {
+            position: fixed;
+            bottom: -500px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            max-width: 600px;
+            background-color: #663F2A;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: bottom 1s ease;
+            z-index: 3;
+        }
+
+        .upload-container.show {
+            bottom: 20px;
+        }
+
+        .upload-area {
+            width: 100%;
+            height: 150px;
+            border: 3px dashed #F2E8D3;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #B35A2E;
+            background-color: rgba(242, 232, 211, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #F2E8D3;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            color: #F2E8D3;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .upload-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        .upload-preview.show {
+            display: block;
+        }
+
+        .upload-button {
+            margin-top: 20px;
+            padding: 10px 30px;
+            background-color: #F2E8D3;
+            color: #663F2A;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-button:hover {
+            background-color: #B35A2E;
+            color: #F2E8D3;
+        }
+
+        .dialog-box.move-up {
+            transform: translateY(-200px);
+        }
+
+        .gallery-container {
+            position: fixed;
+            bottom: 200px;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            z-index: 2;
+        }
+
+        .gallery-item {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="cat-pattern"></div>
+    <div class="dialog-container">
+        <div class="dialog-box active" id="dialog1">
+            <span>亲爱的勇士，恭喜你找回了我们失踪的居民</span>
+        </div>
+        <div class="dialog-box" id="dialog2">
+            <span>如果你的身边也有未来会成为我们国度的居民的话</span>
+        </div>
+        <div class="dialog-box" id="dialog3">
+            <span>请让我们看看它们的喵国许可证</span>
+        </div>
+        <div class="dialog-box" id="dialog4">
+            <span>或许你的小猫也能成为永恒的赛博生命</span>
+        </div>
+        <div class="dialog-box" id="dialog5">
+            <span>V●ω●V</span>
+        </div>
+        <div class="arrows-container">
+            <button class="nav-arrow" onclick="prevDialog()">←</button>
+            <button class="nav-arrow" onclick="nextDialog()">→</button>
+        </div>
+    </div>
+
+    <div class="gallery-container" id="galleryContainer"></div>
+
+    <div class="upload-container">
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">点击或拖拽图片到这里上传</div>
+            <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+            <img id="previewImage" class="upload-preview">
+        </div>
+        <button class="upload-button" id="uploadButton" style="display: none;">上传图片</button>
+    </div>
+
+    <script>
+        let currentDialog = 1;
+        const totalDialogs = 5;
+        let lastDialogTimer = null;
+
+        function updateDialogs() {
+            for (let i = 1; i <= totalDialogs; i++) {
+                const dialog = document.getElementById(`dialog${i}`);
+                if (i === currentDialog) {
+                    dialog.classList.add('active');
+                    if (i === totalDialogs) {
+                        if (lastDialogTimer) clearTimeout(lastDialogTimer);
+                        lastDialogTimer = setTimeout(() => {
+                            dialog.classList.add('move-up');
+                            document.querySelector('.upload-container').classList.add('show');
+                        }, 2000);
+                    }
+                } else {
+                    dialog.classList.remove('active');
+                    dialog.classList.remove('move-up');
+                }
+            }
+        }
+
+        function prevDialog() {
+            currentDialog = (currentDialog - 1 + totalDialogs) % totalDialogs || totalDialogs;
+            updateDialogs();
+            document.querySelector('.upload-container').classList.remove('show');
+        }
+
+        function nextDialog() {
+            if (currentDialog === totalDialogs) {
+                updateDialogs();
+            } else {
+                currentDialog = (currentDialog % totalDialogs) + 1;
+                updateDialogs();
+            }
+        }
+
+        function addImageToGallery(imageData, imageUrl) {
+            const galleryContainer = document.getElementById('galleryContainer');
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            
+            const img = document.createElement('img');
+            img.src = imageUrl || imageData;
+            
+            galleryItem.appendChild(img);
+            galleryContainer.appendChild(galleryItem);
+        }
+
+        function loadExistingImages() {
+            fetch('/api/images')
+                .then(response => response.json())
+                .then(images => {
+                    images.forEach(image => {
+                        addImageToGallery(null, image.url);
+                    });
+                })
+                .catch(error => console.error('Error loading images:', error));
+        }
+
+        function handleFile(file) {
+            if (file.type.startsWith('image/')) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        addImageToGallery(null, data.url);
+                    }
+                })
+                .catch(error => console.error('Error uploading image:', error));
+            }
+        }
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewImage = document.getElementById('previewImage');
+        const uploadButton = document.getElementById('uploadButton');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#B35A2E';
+            uploadArea.style.backgroundColor = 'rgba(242, 232, 211, 0.1)';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#F2E8D3';
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#F2E8D3';
+            uploadArea.style.backgroundColor = 'transparent';
+            Array.from(e.dataTransfer.files).forEach(handleFile);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                Array.from(e.target.files).forEach(handleFile);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstDialog = document.getElementById('dialog1');
+            firstDialog.classList.add('active');
+            loadExistingImages();
+        });
+    </script>
+</body>
+</html> 

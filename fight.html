@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫meme的国度 - FIGHT</title>
+    <link rel="stylesheet" href="fight.css">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+</head>
+<body>
+    <div class="player-label">玩家</div>
+    <div class="enemy-label">猫meme枪王</div>
+    <div class="health-bar">
+        <div class="health-fill"></div>
+    </div>
+    <div class="enemy-health-bar">
+        <div class="enemy-health-fill"></div>
+    </div>
+    <img src="打枪.gif" alt="打枪" class="moving-gif">
+    <div class="player">😊</div>
+    
+    <div class="camera-container">
+        <video id="video" autoplay playsinline></video>
+        <div class="direction-buttons">
+            <div class="direction-button top-left" data-direction="top-left">↖</div>
+            <div class="direction-button top-right" data-direction="top-right">↗</div>
+            <div class="direction-button bottom-left" data-direction="bottom-left">↙</div>
+            <div class="direction-button bottom-right" data-direction="bottom-right">↘</div>
+        </div>
+        <div class="jump-button" data-action="jump"></div>
+    </div>
+    <div class="game-over win">胜利！</div>
+    <div class="game-over lose">失败！</div>
+    <script src="fight.js"></script>
+</body>
+</html> 

@@ -1,0 +1,459 @@
+body {
+    margin: 0;
+    height: 100vh;
+    background-color: #F2E8D3;
+    font-family: 'Microsoft YaHei', sans-serif;
+    overflow: hidden;
+    position: relative;
+}
+
+.health-bar {
+    position: fixed;
+    top: 30px;
+    left: 20px;
+    width: 300px;
+    height: 20px;
+    background-color: #DC7F43;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.health-bar::after {
+    content: "玩家";
+    position: absolute;
+    top: 25px;
+    left: 0;
+    font-size: 16px;
+    color: #663F2A;
+    font-weight: bold;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.health-fill {
+    width: 100%;
+    height: 100%;
+    background-color: #663F2A;
+    transition: width 0.3s ease;
+}
+
+.enemy-health-bar {
+    position: fixed;
+    top: 30px;
+    right: 20px;
+    width: 300px;
+    height: 20px;
+    background-color: #DC7F43;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.enemy-health-bar::after {
+    content: "猫meme枪王";
+    position: absolute;
+    top: 25px;
+    right: 0;
+    font-size: 16px;
+    color: #663F2A;
+    font-weight: bold;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.enemy-health-fill {
+    width: 100%;
+    height: 100%;
+    background-color: #663F2A;
+    transition: width 0.3s ease;
+}
+
+.moving-gif {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 2s ease-in-out;
+    z-index: 1;
+    animation: moveAround 4s infinite alternate;
+}
+
+@keyframes moveAround {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0);
+    }
+    25% {
+        transform: translate(-50%, -50%) translate(200px, 100px);
+    }
+    50% {
+        transform: translate(-50%, -50%) translate(100px, -100px);
+    }
+    75% {
+        transform: translate(-50%, -50%) translate(-200px, 100px);
+    }
+    100% {
+        transform: translate(-50%, -50%) translate(-100px, -100px);
+    }
+}
+
+.player {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 48px;
+    transition: transform 0.2s ease;
+}
+
+.bullet {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #663F2A;
+    border-radius: 50%;
+    z-index: 1000;
+}
+
+.player-bullet {
+    width: 40px;
+    height: 40px;
+    background: none;
+    border-radius: 0;
+    pointer-events: none;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.freeze-bullet {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #87CEEB;
+    transform: rotate(45deg);
+    z-index: 1001;
+}
+
+.frozen-player {
+    position: relative;
+    pointer-events: none;
+}
+
+.frozen-player::after {
+    content: "❄";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    z-index: 1000;
+}
+
+.freeze-text {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 72px;
+    font-weight: bold;
+    color: #87CEEB;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: fadeInOut 3s ease-in-out forwards;
+    z-index: 2000;
+    pointer-events: none;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+}
+
+.bullet.bullet1 {
+    background-image: url('子弹1.png');
+}
+
+.bullet.bullet2 {
+    background-image: url('子弹2.png');
+}
+
+.bullet.bullet3 {
+    background-image: url('❤️');
+    font-size: 40px;
+    line-height: 40px;
+    text-align: center;
+}
+
+/* 打枪猫被击中时的红色遮罩 */
+.moving-gif.hit {
+    position: relative;
+}
+
+.moving-gif.hit::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+/* 玩家被击中时的猫猫emoji动画 */
+@keyframes hitEmoji {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+.hit-emoji {
+    position: absolute;
+    font-size: 24px;
+    animation: hitEmoji 0.5s ease-out forwards;
+    pointer-events: none;
+}
+
+.camera-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    height: 225px;
+    border: 2px solid #663F2A;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.camera-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+/* 方向按钮容器 */
+.direction-buttons {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 20;
+    pointer-events: none;
+    transform: scaleX(-1);
+}
+
+/* 方向按钮样式 */
+.direction-button {
+    width: 20px;
+    height: 20px;
+    background-color: #F2E8D3;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    color: #663F2A;
+    pointer-events: none;
+    border: 2px solid #663F2A;
+    transform: scaleX(-1);
+}
+
+.direction-button.active {
+    background-color: #DC7F43;
+    color: white;
+}
+
+.game-over {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 72px;
+    font-weight: bold;
+    color: white;
+    z-index: 100;
+}
+
+.game-over.win {
+    background-color: rgba(0, 255, 0, 0.8);
+}
+
+.game-over.lose {
+    background-color: rgba(255, 0, 0, 0.8);
+}
+
+/* 添加浮动emoji动画样式 */
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-150px) scale(0.5);
+        opacity: 0;
+    }
+}
+
+.floating-emoji {
+    position: absolute;
+    font-size: 36px;
+    pointer-events: none;
+    z-index: 30;
+    animation: floatUp 1.5s ease-out forwards;
+}
+
+/* 跳跃按钮样式 */
+.jump-button {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 53px;
+    height: 53px;
+    background-color: #663F2A;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 20;
+    pointer-events: auto;
+}
+
+.jump-button.active {
+    background-color: #DC7F43;
+    transform: translateX(-50%) scale(0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.bomb-bullet {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    font-size: 24px;
+    text-align: center;
+    line-height: 30px;
+    z-index: 1001;
+}
+
+.bomb-text {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 72px;
+    font-weight: bold;
+    color: #FF0000;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: fadeInOut 3s ease-in-out forwards;
+    z-index: 2000;
+    pointer-events: none;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+}
+
+.next-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #DC7F43;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #F2E8D3;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.next-button:hover {
+    transform: scale(1.1);
+    background-color: #663F2A;
+}
+
+.next-button::before {
+    content: "→";
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.player-label {
+    position: fixed;
+    top: 5px;
+    left: 20px;
+    font-size: 16px;
+    color: #663F2A;
+    font-weight: bold;
+    z-index: 1000;
+}
+
+.enemy-label {
+    position: fixed;
+    top: 5px;
+    right: 20px;
+    font-size: 16px;
+    color: #663F2A;
+    font-weight: bold;
+    z-index: 1000;
+} 
